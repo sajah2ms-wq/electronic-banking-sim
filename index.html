@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكاة الأمان المصرفي - اختبار كشف الاحتيال</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            padding: 28px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin: 0 0 8px 0;
+        }
+
+        .header p {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary-light);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .scenario-card {
+            background-color: #f1f5f9;
+            border-right: 4px solid var(--primary-light);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn-option {
+            background-color: #ffffff;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: right;
+            transition: all 0.2s ease;
+            color: var(--text);
+        }
+
+        .btn-option:hover {
+            border-color: var(--primary-light);
+            background-color: #eff6ff;
+        }
+
+        .feedback {
+            display: none;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .feedback.correct {
+            background-color: #dcfce7;
+            color: #14532d;
+            border: 1px solid #86efac;
+        }
+
+        .feedback.incorrect {
+            background-color: #fee2e2;
+            color: #7f1d1d;
+            border: 1px solid #fca5a5;
+        }
+
+        .btn-next {
+            display: none;
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .btn-next:hover {
+            background-color: var(--primary-light);
+        }
+
+        .result-box {
+            display: none;
+            text-align: center;
+        }
+
+        .result-score {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 16px 0;
+        }
+
+        .btn-restart {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🔐 محاكاة المعاملات والخدمات المصرفية الرقمية</h1>
+        <p>اختبر قدرتك على التمييز بين الطلبات الآمنة ومحاولات الاحتيال</p>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" id="progress"></div>
+    </div>
+
+    <div id="quiz-box">
+        <div class="scenario-card" id="scenario-text">
+            جاري تحميل السيناريو...
+        </div>
+
+        <div class="options-grid" id="options-container">
+            <!-- Dynamic Options -->
+        </div>
+
+        <div class="feedback" id="feedback-box"></div>
+
+        <button class="btn-next" id="next-btn" onclick="nextQuestion()">السؤال التالي ➔</button>
+    </div>
+
+    <div class="result-box" id="result-box">
+        <h2>اكتملت المحاكاة! 🎉</h2>
+        <p>نتيجة تقييمك في الوعي بالأمان المصرفي:</p>
+        <div class="result-score" id="score-text">0 / 0</div>
+        <p id="result-message"></p>
+        <button class="btn-restart" onclick="restartQuiz()">إعادة المحاكاة ↺</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            scenario: "📩 وصلتك رسالة نصية قصيرة (SMS) تقول: «تم تجميد حسابك المصرفي مؤقتاً! اضغط على الرابط التالي وأدخل رمز (OTP) فوراً لإلغاء التجميد». ما هو تصرفك الصحيح؟",
+            options: [
+                { text: "أضغط على الرابط وأدخل الرمز سريعاً لحماية الحساب من الإغلاق.", correct: false },
+                { text: "أتجاهل الرسالة تماماً ولا أضغط على الرابط؛ لأن المصرف لا يطلب رمز OTP عبر روابط.", correct: true },
+                { text: "أقوم بإعادة إرسال الرمز إلى نفس الرقم للتأكد من هوية المرسل.", correct: false }
+            ],
+            explanation: "<b>تصرف آمن!</b> المصرف لن يطلب منك أبداً مشاركة رمز OTP أو إدخاله عبر رابط في رسالة نصية. الاستعجال وطلب Secrets هي من أبرز علامات الاحتيال الإلكتروني (Phishing)."
+        },
+        {
+            scenario: "📞 اتصل بك شخص يدّعي أنه موظف من «قسم الدعم الفني للمصرف»، وطلب منك إعطاءه الرقم السري للبطاقة (PIN) للتحقق من هوية صاحب الحساب. ماذا تفعل؟",
+            options: [
+                { text: "أعطيه الرقم السري ما دام قد أظهر أنه يعرف اسمي الكامل.", correct: false },
+                { text: "أنهي المكالمة فوراً، وأتصل برقم خدمة العملاء الرسمي المطبوع خلف بطاقتي المصرفية.", correct: true },
+                { text: "أطلب منه إرسال رسالة واتساب بدلاً من المكالمة الهاتفيّة.", correct: false }
+            ],
+            explanation: "<b>إجابة صحيحة!</b> القاعدة الذهبية للأمان هي: «لا تشارك الرقم السري (PIN) أو الـ OTP مع أي شخص نهائياً»، حتى لو ادعى أنه موظف المصرف."
+        },
+        {
+            scenario: "📲 تريد التحقق من رصيدك ودفع فاتورة الخدمة بشكل آمن من المنزل عبر هاتفك. أي الوسائل التالية هي الأكثر أماناً واستخداماً؟",
+            options: [
+                { text: "تطبيق المصرف الرسمي للبطاقات/الموبايل المُحمل من المتاجر الرسمية.", correct: true },
+                { text: "البحث في قوقل عن أي موقع يقدّم خدمة التسديد المباشر ودفع البيانات فيه.", correct: false },
+                { text: "إرسال البيانات المصرفية عبر بريد إلكتروني مفتوح لخدمة الزبائن.", correct: false }
+            ],
+            explanation: "<b>ممتاز!</b> تُعد تطبيقات الموبايل الرسمية للصيرفة المصرفية الوسيلة الآمنة المباشرة التي تُدار بها المعاملات اليومية بفعالية وأمان عالية."
+        },
+        {
+            scenario: "⚠️ أثناء استخدامك للخدمات المصرفية عبر الإنترنت، استلمت رمز OTP لعملية شرائية لم تقم بها أنت إطلاقاً. ما الخطوة الفورية الواجب اتخاذها؟",
+            options: [
+                { text: "حذف الرسالة وتجاهلها طالما أنني لم أشارك الرمز مع أحد.", correct: false },
+                { text: "الإبلاغ الفوري وإبلاغ المصرف لإيقاف البطاقة وتغيير كلمة المرور.", correct: true },
+                { text: "كتابة منشور على منصات التواصل الاجتماعي للاستفسار.", correct: false }
+            ],
+            explanation: "<b>صحيح جداً!</b> عند وجود حركة مشبوهة، يجب الإبلاغ المباشر للمصرف ليتخذ الإجراء السريع بقطع الوصول وحماية أموالك."
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    function loadQuestion() {
+        const q = questions[currentQuestionIndex];
+        document.getElementById("scenario-text").innerHTML = q.scenario;
+        document.getElementById("progress").style.width = `${((currentQuestionIndex) / questions.length) * 100}%`;
+        
+        const optionsContainer = document.getElementById("options-container");
+        optionsContainer.innerHTML = "";
+        
+        document.getElementById("feedback-box").style.display = "none";
+        document.getElementById("next-btn").style.display = "none";
+
+        q.options.forEach((opt) => {
+            const btn = document.createElement("button");
+            btn.className = "btn-option";
+            btn.innerText = opt.text;
+            btn.onclick = () => checkAnswer(opt, q.explanation);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selectedOption, explanation) {
+        const buttons = document.querySelectorAll(".btn-option");
+        buttons.forEach(btn => btn.disabled = true);
+
+        const feedbackBox = document.getElementById("feedback-box");
+        feedbackBox.style.display = "block";
+
+        if (selectedOption.correct) {
+            score++;
+            feedbackBox.className = "feedback correct";
+            feedbackBox.innerHTML = `✓ <b>إجابة صحيحة!</b><br>${explanation}`; } else { feedbackBox.className = "feedback incorrect"; feedbackBox.innerHTML = `✕ <b>إجابة غير صحيحة!</b><br>${explanation}`;
+        }
+
+        document.getElementById("next-btn").style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        document.getElementById("quiz-box").style.display = "none";
+        document.getElementById("progress").style.width = "100%";
+        
+        const resultBox = document.getElementById("result-box");
+        resultBox.style.display = "block";
+        
+        document.getElementById("score-text").innerText = `${score} /${questions.length}`;
+        
+        const msg = document.getElementById("result-message");
+        if (score === questions.length) {
+            msg.innerText = "أحسنت! لديك وعي ممتاز بالأمان المصرفي وقواعد حماية الحسابات.";
+        } else if (score >= questions.length / 2) {
+            msg.innerText = "جيد جداً! لديك معرفة عامة آمنة، ولكن احرص على مراجعة علامات الاحتيال بدقة أكبر.";
+        } else {
+            msg.innerText = "تحتاج لمراجعة قواعد الأمان المصرفية ووسائل التحقق (OTP, PIN) لتجنب مخاطر الاحتيال.";
+        }
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        document.getElementById("quiz-box").style.display = "block";
+        document.getElementById("result-box").style.display = "none";
+        loadQuestion();
+    }
+
+    // Initialize
+    loadQuestion();
+</script>
+
+</body>
+</html>
